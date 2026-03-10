@@ -1,70 +1,52 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import psycopg2
 
-# ── Configuración de la página ──────────────────────────────
+# ── Configuración ────────────────────────────────────────────
 st.set_page_config(
     page_title="SCM Dashboard",
     page_icon="📦",
     layout="wide"
 )
 
-# ── Conexión a PostgreSQL ────────────────────────────────────
-@st.cache_data(ttl=60)
-def get_data(query):
-    conn = psycopg2.connect(
-        host="host.docker.internal",
-        database="scm_db",
-        user="emilio",
-        password="scmlearning123",
-        port="5432"
-    )
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
+# ── Datos embebidos (modo demo para deploy público) ──────────
+def get_demo_data():
+    inventario = pd.DataFrame({
+        'sku': ['PAN-CELL-200','PAN-CELL-400','INV-SOL-3K','INV-SOL-5K','BAT-LIT-10','MIC-ENP-01','PAN-JNK-350'],
+        'descripcion': ['Panel Solar 200W','Panel Solar 400W Bifacial','Inversor Solar 3kW','Inversor Solar 5kW','Batería Litio 10kWh','Microinversor Enphase IQ8','Panel Solar 350W Jinko'],
+        'categoria': ['Paneles','Paneles','Inversores','Inversores','Baterías','Microinversores','Paneles'],
+        'stock_actual': [45, 120, 8, 22, 3, 67, 15],
+        'stock_minimo': [50, 40, 15, 10, 5, 30, 20],
+        'stock_maximo': [200, 180, 60, 50, 20, 150, 100],
+        'precio_unitario': [150, 280, 420, 680, 3200, 185, 210]
+    })
+    inventario['diferencia'] = inventario['stock_actual'] - inventario['stock_minimo']
+    inventario['valor_inventario'] = inventario['stock_actual'] * inventario['precio_unitario']
 
-# ── Queries ──────────────────────────────────────────────────
-query_inventario = """
-    SELECT p.sku, p.descripcion, p.categoria,
-           i.stock_actual, i.stock_minimo, i.stock_maximo,
-           i.stock_actual - i.stock_minimo AS diferencia,
-           i.stock_actual * p.precio_unitario AS valor_inventario
-    FROM inventario i
-    JOIN productos p ON i.id_producto = p.id_producto
-    ORDER BY diferencia ASC;
-"""
+    categorias = inventario.groupby('categoria').agg(
+        num_productos=('sku','count'),
+        valor_total=('valor_inventario','sum')
+    ).reset_index().sort_values('valor_total', ascending=False)
 
-query_categorias = """
-    SELECT p.categoria,
-           COUNT(*) AS num_productos,
-           SUM(i.stock_actual * p.precio_unitario) AS valor_total
-    FROM productos p
-    JOIN inventario i ON p.id_producto = i.id_producto
-    GROUP BY p.categoria
-    ORDER BY valor_total DESC;
-"""
+    proveedores = pd.DataFrame({
+        'proveedor': ['Panasonic Energy','BYD Solar','SolarTech Europe','Enphase Energy','Jinko Solar'],
+        'calificacion': [9.2, 8.1, 8.7, 9.5, 7.9],
+        'num_ordenes': [2, 1, 2, 1, 1],
+        'valor_total': [37400, 32000, 18600, 9250, 12600]
+    })
 
-query_proveedores = """
-    SELECT pr.nombre AS proveedor, pr.calificacion,
-           COUNT(*) AS num_ordenes,
-           SUM(oc.cantidad * oc.precio_unitario) AS valor_total
-    FROM proveedores pr
-    JOIN ordenes_compra oc ON pr.id_proveedor = oc.id_proveedor
-    GROUP BY pr.nombre, pr.calificacion
-    ORDER BY valor_total DESC;
-"""
+    return inventario, categorias, proveedores
+
+# ── Cargar datos ─────────────────────────────────────────────
+df_inv, df_cat, df_prov = get_demo_data()
 
 # ── Header ───────────────────────────────────────────────────
 st.title("📦 SCM Dashboard — Inventario & Proveedores")
-st.markdown("Dashboard interactivo de Supply Chain | Emilio Mendieta")
+st.markdown("Dashboard interactivo de Supply Chain | **Emilio Mendieta**")
+st.info("📊 Modo demo — datos sintéticos de industria solar")
 st.divider()
 
 # ── KPIs ─────────────────────────────────────────────────────
-df_inv = get_data(query_inventario)
-df_cat = get_data(query_categorias)
-df_prov = get_data(query_proveedores)
-
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total Productos", len(df_inv))
 col2.metric("Valor Inventario", f"${df_cat['valor_total'].sum():,.0f}")
@@ -75,7 +57,7 @@ st.divider()
 
 # ── Alertas de Stockout ───────────────────────────────────────
 st.subheader("🚨 Alertas de Stockout")
-df_alertas = df_inv[df_inv['diferencia'] < 0][['sku', 'descripcion', 'categoria', 'stock_actual', 'stock_minimo', 'diferencia']]
+df_alertas = df_inv[df_inv['diferencia'] < 0][['sku','descripcion','categoria','stock_actual','stock_minimo','diferencia']]
 if len(df_alertas) > 0:
     st.dataframe(df_alertas, use_container_width=True)
 else:
@@ -102,6 +84,6 @@ with col_right:
 
 st.divider()
 
-# ── Tabla completa de inventario ──────────────────────────────
+# ── Tabla completa ────────────────────────────────────────────
 st.subheader("📋 Inventario Completo")
 st.dataframe(df_inv, use_container_width=True)

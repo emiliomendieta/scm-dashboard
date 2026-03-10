@@ -41,9 +41,9 @@ def get_demo_data():
 df_inv, df_cat, df_prov = get_demo_data()
 
 # ── Header ───────────────────────────────────────────────────
-st.title("📦 SCM Dashboard — Inventario & Proveedores")
+st.title("SCM Dashboard — Inventario & Proveedores")
 st.markdown("Dashboard interactivo de Supply Chain | **Emilio Mendieta**")
-st.info("📊 Modo demo — datos sintéticos de industria solar")
+st.info("Portafolio SCM Analytics - Emilio Mendieta")
 st.divider()
 
 # ── KPIs ─────────────────────────────────────────────────────

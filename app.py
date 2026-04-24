@@ -47,11 +47,12 @@ st.info("Portafolio SCM Analytics - Emilio Mendieta")
 st.divider()
 
 # ── KPIs ─────────────────────────────────────────────────────
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5= st.columns(5)
 col1.metric("Total Productos", len(df_inv))
 col2.metric("Valor Inventario", f"${df_cat['valor_total'].sum():,.0f}")
 col3.metric("Productos Bajo Mínimo", len(df_inv[df_inv['diferencia'] < 0]))
 col4.metric("Proveedores Activos", len(df_prov))
+col5.metric("Precio Más Alto", f"${df_inv['precio_unitario'].max():,.0f}")
 
 st.divider()
 

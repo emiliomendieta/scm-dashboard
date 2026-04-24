@@ -4,8 +4,8 @@ import plotly.express as px
 
 # ── Configuración ────────────────────────────────────────────
 st.set_page_config(
-    page_title="SCM Dashboard",
-    page_icon="📦",
+    page_title="SCM Dashboard Emilio",
+    page_icon="🥸",
     layout="wide"
 )
 

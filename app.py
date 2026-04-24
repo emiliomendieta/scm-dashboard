@@ -12,13 +12,13 @@ st.set_page_config(
 # ── Datos embebidos (modo demo para deploy público) ──────────
 def get_demo_data():
     inventario = pd.DataFrame({
-        'sku': ['PAN-CELL-200','PAN-CELL-400','INV-SOL-3K','INV-SOL-5K','BAT-LIT-10','MIC-ENP-01','PAN-JNK-350'],
-        'descripcion': ['Panel Solar 200W','Panel Solar 400W Bifacial','Inversor Solar 3kW','Inversor Solar 5kW','Batería Litio 10kWh','Microinversor Enphase IQ8','Panel Solar 350W Jinko'],
-        'categoria': ['Paneles','Paneles','Inversores','Inversores','Baterías','Microinversores','Paneles'],
-        'stock_actual': [45, 120, 8, 22, 3, 67, 15],
-        'stock_minimo': [50, 40, 15, 10, 5, 30, 20],
-        'stock_maximo': [200, 180, 60, 50, 20, 150, 100],
-        'precio_unitario': [150, 280, 420, 680, 3200, 185, 210]
+        'sku': ['PAN-CELL-200','PAN-CELL-400','INV-SOL-3K','INV-SOL-5K','BAT-LIT-10','MIC-ENP-01','PAN-JNK-350','BAT-SOL-20'],
+        'descripcion': ['Panel Solar 200W','Panel Solar 400W Bifacial','Inversor Solar 3kW','Inversor Solar 5kW','Batería Litio 10kWh','Microinversor Enphase IQ8','Panel Solar 350W Jinko','Batería Solar 20kWh'],
+        'categoria': ['Paneles','Paneles','Inversores','Inversores','Baterías','Microinversores','Paneles','Baterías'],
+        'stock_actual': [45, 120, 8, 22, 3, 67, 15,2],
+        'stock_minimo': [50, 40, 15, 10, 5, 30, 20,8],
+        'stock_maximo': [200, 180, 60, 50, 20, 150, 100,30],
+        'precio_unitario': [150, 280, 420, 680, 3200, 185, 210,5800]
     })
     inventario['diferencia'] = inventario['stock_actual'] - inventario['stock_minimo']
     inventario['valor_inventario'] = inventario['stock_actual'] * inventario['precio_unitario']
